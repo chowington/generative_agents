@@ -5,16 +5,16 @@ File: gpt_structure.py
 Description: Wrapper functions for calling OpenAI APIs.
 """
 import json
-import random
-import openai
+# import random
+# import openai
 import time 
 
 from utils import *
-from langchain.llms import Ollama
-from langchain.llms import OpenAI
+# from langchain.llms import Ollama
+# from langchain.llms import OpenAI
 from langchain.llms import LlamaCpp
-from langchain.llms import GPT4All
-from langchain.chat_models import ChatAnthropic
+# from langchain.llms import GPT4All
+# from langchain.chat_models import ChatAnthropic
 from langchain.embeddings import GPT4AllEmbeddings
 from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
@@ -34,11 +34,10 @@ llm = ChatAnthropic(model_name="claude-2", temperature=0)
 '''
 
 ### *** Llama.cpp (Llama2-13b) ***
-'''
 n_gpu_layers = 1  # Metal set to 1 is enough.
 n_batch = 512  # Should be between 1 and n_ctx, consider the amount of RAM of your Apple Silicon Chip.
 callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
-model_path="/Users/rlm/Desktop/Code/llama.cpp/llama-2-13b-chat.ggmlv3.q4_0.bin"
+model_path="/home/chowington/machine-learning/llama-2-7b-chat.Q4_K_M.gguf"
 llm = LlamaCpp(
     model_path=model_path,
     n_gpu_layers=n_gpu_layers,
@@ -48,7 +47,6 @@ llm = LlamaCpp(
     callback_manager=callback_manager,
     verbose=True,
 )
-''' 
 
 ### *** GPT4Alll (nous-hermes-13b) *** 
 ''' 
@@ -66,9 +64,9 @@ llm = Ollama(base_url="http://localhost:11434",
 '''
 
 ### *** Ollama (Llama2-13b) *** 
-llm = Ollama(base_url="http://localhost:11434",
-              model="llama2:13b",
-              callback_manager = CallbackManager([StreamingStdOutCallbackHandler()]))
+# llm = Ollama(base_url="http://localhost:11434",
+#               model="llama2:13b",
+#               callback_manager = CallbackManager([StreamingStdOutCallbackHandler()]))
 
 def temp_sleep(seconds=0.1):
   time.sleep(seconds)
@@ -131,9 +129,9 @@ def ChatGPT_safe_generate_response(prompt,
       curr_gpt_response = curr_gpt_response[:end_index]
       curr_gpt_response = json.loads(curr_gpt_response)["output"]
 
-      # print ("---ashdfaf")
-      # print (curr_gpt_response)
-      # print ("000asdfhia")
+      print ("---ashdfaf")
+      print (curr_gpt_response)
+      print ("000asdfhia")
       
       if func_validate(curr_gpt_response, prompt=prompt): 
         return func_clean_up(curr_gpt_response, prompt=prompt)

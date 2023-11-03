@@ -99,14 +99,29 @@ def generate_hourly_schedule(persona, wake_up_hour):
   for i in range(diversity_repeat_count): 
     n_m1_activity_set = set(n_m1_activity)
     if len(n_m1_activity_set) < 5: 
-      n_m1_activity = []
-      for count, curr_hour_str in enumerate(hour_str): 
-        if wake_up_hour > 0: 
-          n_m1_activity += ["sleeping"]
-          wake_up_hour -= 1
-        else: 
-          n_m1_activity += [run_gpt_prompt_generate_hourly_schedule(
-                          persona, curr_hour_str, n_m1_activity, hour_str)[0]]
+      n_m1_activity = ["sleeping" for i in range(wake_up_hour - 1)]
+      last_hour = hour_str[wake_up_hour + 1]
+      # for count, curr_hour_str in enumerate(hour_str): 
+      while last_hour != '11:00 PM' or len(n_m1_activity) < 24:
+        # if wake_up_hour > 0: 
+        #   n_m1_activity += ["sleeping"]
+        #   wake_up_hour -= 1
+        # else: 
+        curr_hour_str = last_hour
+        response = run_gpt_prompt_generate_hourly_schedule(
+                        persona, curr_hour_str, n_m1_activity, hour_str)[0]
+        # Add the first task immediately
+        lines = response.split('\n')
+        n_m1_activity.pop()
+        n_m1_activity += [lines[0]]
+        if len(lines) > 1:
+          hours = re.findall(r'\d\d:00 .M', response)
+          if len(hours) > 0:
+            last_hour = hours[-1]
+          else:
+            last_hour = hour_str[hour_str.index(curr_hour_str) + 1]
+          activities = [' '.join(activity.split(' ')[1:]).replace('is', '').strip('. ') for activity in re.findall(r'Activity: (.*)\n', response)]
+          n_m1_activity += activities
   
   # Step 1. Compressing the hourly schedule to the following format: 
   # The integer indicates the number of hours. They should add up to 24. 
@@ -266,6 +281,8 @@ def generate_action_event_triple(act_desp, persona):
 
 def generate_act_obj_desc(act_game_object, act_desp, persona): 
   if debug: print ("GNS FUNCTION: <generate_act_obj_desc>")
+  # The following line is where the final error happens
+  # run_gpt_prompt_act_obj_desc(...) returns a NoneType, which is not subscriptable
   return run_gpt_prompt_act_obj_desc(act_game_object, act_desp, persona)[0]
 
 
